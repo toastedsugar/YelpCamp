@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const catchAsync = require("./Utils/catchAsync.js")
 const ExpressError = require("./Utils/ExpressError.js")
-
+const {campgroundSchema} = require("./schemas.js");
 const Campground = require("./Models/campground");
 const methodOverride = require("method-override");
 const { findById } = require("./Models/campground");
@@ -30,13 +30,26 @@ app.set("views", path.join(__dirname, "Views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
+const validateCampground = (req, res, next) => {
+    
+    const {error} = campgroundSchema.validate(req.body);
+    
+    if(result.error) {
+        const msg = error.details.map(el => el.message).join(",");
+        throw new ExpressError(msg, 400);
+    } else{
+        next();
+    } 
+}
+
 /*  GET Request for homepage */
 app.get("/", (req, res) => {
     //res.send("HELLO");
     res.render("home");
 })
-
-/* Creating index page */
+/***************************************************
+    Creating index page 
+*/
 app.get("/campgrounds", catchAsync(async (req, res) => {
     const allCampgrounds = await Campground.find({})
     res.render("campgrounds/index", { allCampgrounds });
@@ -52,7 +65,7 @@ app.get("/campgrounds/new", (req, res) => {
     //res.send("NEW")
 })
 
-app.post("/campgrounds", catchAsync(async (req, res, next) => {
+app.post("/campgrounds", validateCampground, catchAsync(async (req, res, next) => {
     //res.send(req.body);
     //console.log(req.body.campground);
     const newCampground = new Campground(req.body.campground);
@@ -78,7 +91,7 @@ app.get("/campgrounds/:id/edit", catchAsync(async (req, res) => {
     res.render(`campgrounds/edit`, { campground });
 }))
 
-app.put("/campgrounds/:id", catchAsync(async (req, res) => {
+app.put("/campgrounds/:id", validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
     const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${newCampground._id}`);
