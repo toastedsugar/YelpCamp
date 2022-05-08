@@ -2,6 +2,9 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
+const catchAsync = require("./Utils/catchAsync.js")
+const ExpressError = require("./Utils/ExpressError.js")
+
 const Campground = require("./Models/campground");
 const methodOverride = require("method-override");
 const { findById } = require("./Models/campground");
@@ -34,10 +37,10 @@ app.get("/", (req, res) => {
 })
 
 /* Creating index page */
-app.get("/campgrounds", async (req, res) => {
+app.get("/campgrounds", catchAsync(async (req, res) => {
     const allCampgrounds = await Campground.find({})
     res.render("campgrounds/index", { allCampgrounds });
-})
+}))
 
 /***************************************************
     Create a new campsite
@@ -49,57 +52,71 @@ app.get("/campgrounds/new", (req, res) => {
     //res.send("NEW")
 })
 
-app.post("/campgrounds", async (req, res, next) => {
-    try {
-        //res.send(req.body);
-        //console.log(req.body.campground);
-        const newCampground = new Campground(req.body.campground);
-        await newCampground.save();
-        res.redirect(`/campgrounds/${newCampground._id}`);
-    } catch (err) {
-        next(err);
-    }
-})
+app.post("/campgrounds", catchAsync(async (req, res, next) => {
+    //res.send(req.body);
+    //console.log(req.body.campground);
+    const newCampground = new Campground(req.body.campground);
+    await newCampground.save();
+    res.redirect(`/campgrounds/${newCampground._id}`);
+}))
 
 /***************************************************
     View details for a single campsite */
-app.get("/campgrounds/:id", async (req, res) => {
+app.get("/campgrounds/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render("campgrounds/view", { campground });
-})
+}))
 
 /***************************************************
     Update a preexisting campsite
     get request shows the input form
     post request updates campsite in database
 */
-app.get("/campgrounds/:id/edit", async (req, res) => {
+app.get("/campgrounds/:id/edit", catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     res.render(`campgrounds/edit`, { campground });
-})
+}))
 
-app.put("/campgrounds/:id", async (req, res) => {
+app.put("/campgrounds/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
     const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${newCampground._id}`);
     //console.log(newCampground);
-})
+}))
 
 /***************************************************
     Deletes a specified campground from database */
-app.delete("/campgrounds/:id", async (req, res) => {
+app.delete("/campgrounds/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
     const removed = await Campground.findByIdAndDelete(id);
     //console.log(removed);
     res.redirect("/campgrounds");
+}))
+
+
+/***************************************************
+    Generic Error handler   
+
+app.use((err, req, res, next) => {
+    res.send("Oh no!");
+})
+*/
+
+app.all("*", (req,res, next) => {
+    //res.send("404");
+    next(new ExpressError("Page not found", 404));
 })
 
 /***************************************************
     Route not found (middleware)    
 */
-app.use((req, res, next) => {
-    res.status(404).send("NOT FOUND!!!");
+app.use((err, req, res, next) => {
+    const {statusCode = 500, message} = err;
+    if(!err.message) err.message = "Oh, no!";
+    res.status(statusCode).render("errors", {err});
+    //res.status(statusCode).send(message);
+    //res.status(404).send("NOT FOUND!!!");
 })
 
 
