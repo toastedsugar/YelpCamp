@@ -30,6 +30,7 @@ const seedDB = async () => {
 
         const camp = new Campground({
             title: `${seedHelpers.descriptors[randomDescriptors]} ${seedHelpers.places[randomPlaces]}`,
+            image: "https://source.unsplash.com/random/400×300/?forest",
             price: randomPrice,
             description: `${seedHelpers.descriptors[randomDescriptors]} ${seedHelpers.places[randomPlaces]}`,
             location: `${cities[random1000].city}, ${cities[random1000].state}`

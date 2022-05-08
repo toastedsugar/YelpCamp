@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
+const ejsMate = require("ejs-mate");
 const Campground = require("./Models/campground");
 const methodOverride = require("method-override");
 const { findById } = require("./Models/campground");
@@ -19,10 +20,11 @@ db.once("open", () => {
 
 const app = express();
 
+app.engine('ejs', ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "Views"));
 
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 /*  GET Request for homepage */
@@ -34,10 +36,11 @@ app.get("/", (req, res) => {
 /* Creating index page */
 app.get("/campgrounds", async (req, res) => {
     const allCampgrounds = await Campground.find({})
-    res.render("campgrounds/index", {allCampgrounds});
+    res.render("campgrounds/index", { allCampgrounds });
 })
 
-/* Create a new campsite
+/***************************************************
+    Create a new campsite
     get request shows the input form
     post request adds new campsite to database
 */
@@ -46,47 +49,58 @@ app.get("/campgrounds/new", (req, res) => {
     //res.send("NEW")
 })
 
-app.post("/campgrounds", async (req, res) => {
-    //res.send(req.body);
-    //console.log(req.body.campground);
-    const newCampground = new Campground(req.body.campground);
-    await newCampground.save();
-    res.redirect(`/campgrounds/${newCampground._id}`);
+app.post("/campgrounds", async (req, res, next) => {
+    try {
+        //res.send(req.body);
+        //console.log(req.body.campground);
+        const newCampground = new Campground(req.body.campground);
+        await newCampground.save();
+        res.redirect(`/campgrounds/${newCampground._id}`);
+    } catch (err) {
+        next(err);
+    }
 })
 
-/* View details for a single campsite */
+/***************************************************
+    View details for a single campsite */
 app.get("/campgrounds/:id", async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const campground = await Campground.findById(id);
-    res.render("campgrounds/view", {campground});
+    res.render("campgrounds/view", { campground });
 })
 
-/* Update a preexisting campsite
+/***************************************************
+    Update a preexisting campsite
     get request shows the input form
     post request updates campsite in database
 */
 app.get("/campgrounds/:id/edit", async (req, res) => {
     const campground = await Campground.findById(req.params.id);
-    res.render(`campgrounds/edit`, {campground});
+    res.render(`campgrounds/edit`, { campground });
 })
 
 app.put("/campgrounds/:id", async (req, res) => {
-    const {id} = req.params;
-    const newCampground = await Campground.findByIdAndUpdate(id, {...req.body.campground});
+    const { id } = req.params;
+    const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${newCampground._id}`);
     //console.log(newCampground);
 })
 
+/***************************************************
+    Deletes a specified campground from database */
 app.delete("/campgrounds/:id", async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const removed = await Campground.findByIdAndDelete(id);
     //console.log(removed);
     res.redirect("/campgrounds");
 })
 
-
-
-
+/***************************************************
+    Route not found (middleware)    
+*/
+app.use((req, res, next) => {
+    res.status(404).send("NOT FOUND!!!");
+})
 
 
 
