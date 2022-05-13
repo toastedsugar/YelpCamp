@@ -19,3 +19,52 @@
         <li>Description: <%= campground.description %>
         </li>
     </ul>
+
+    <h2>Reviews</h2>
+    <% for(let review of campground.reviews){ %>
+        <div class="mb-3">
+            <p>Rating: <%= review.rating %></p>
+            <p>Review: <%= review.body %></p>
+            <form action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>/?_method=DELETE" method="POST">
+                <button class="btn btn-sm btn-danger">Delete Comment</button>
+            </form>
+        </div>
+    <% } %>  
+
+    <form class="validated-form" action="/campgrounds/<%= campground._id %>/reviews" method="POST" novalidate>
+        <h2 class="mt-3">Leave a review</h2>
+        <div class="mb-3">
+            <label class="form-label" for="rating">Rating</label>
+            <input class="form-range" type="range" min="1" max="5" name="review[name]" id="rating">
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="reviewBody">Review</label>
+            <textarea class="form-control" name="review[body]" id="reviewBody" cols="30" rows="3" required></textarea>
+        </div>
+        <button class="btn btn-primary mb-3">Submit</button>
+    </form>
+
+
+
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.validated-form')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>

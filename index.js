@@ -4,8 +4,11 @@ const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const catchAsync = require("./Utils/catchAsync.js")
 const ExpressError = require("./Utils/ExpressError.js")
-const {campgroundSchema} = require("./schemas.js");
+const { campgroundSchema, reviewSchema } = require("./schemas.js");
+
 const Campground = require("./Models/campground");
+const Review = require("./Models/review");
+
 const methodOverride = require("method-override");
 const { findById } = require("./Models/campground");
 
@@ -31,15 +34,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 const validateCampground = (req, res, next) => {
-    
-    const {error} = campgroundSchema.validate(req.body);
-    
-    if(result.error) {
+    const { error } = campgroundSchema.validate(req.body);
+
+    if (result.error) {
         const msg = error.details.map(el => el.message).join(",");
         throw new ExpressError(msg, 400);
-    } else{
+    } else {
         next();
-    } 
+    }
+}
+
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
+
+    if (result.error) {
+        const msg = error.details.map(el => el.message).join(",");
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
 }
 
 /*  GET Request for homepage */
@@ -77,7 +90,8 @@ app.post("/campgrounds", validateCampground, catchAsync(async (req, res, next) =
     View details for a single campsite */
 app.get("/campgrounds/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
-    const campground = await Campground.findById(id);
+    const campground = await Campground.findById(id).populate("reviews");
+    //console.log(campground);
     res.render("campgrounds/view", { campground });
 }))
 
@@ -107,6 +121,29 @@ app.delete("/campgrounds/:id", catchAsync(async (req, res) => {
     res.redirect("/campgrounds");
 }))
 
+/***************************************************
+    Add a review to a post */
+app.post("/campgrounds/:id/reviews", catchAsync(async (req, res) => {
+    const { id } = req.params;
+    //res.send("Yay");
+    const campground = await Campground.findById(id);
+    const newReview = new Review(req.body.review);
+    campground.reviews.push(newReview);
+    await newReview.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}))
+
+/***************************************************
+    Delete a review from a post */
+app.delete("/campgrounds/:id/reviews/:reviewID", catchAsync(async (req, res) => {
+    //res.send("Delete me!")
+    const { id, reviewID } = req.params
+    const campground = await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewID } });
+    const review = await Review.findByIdAndDelete(reviewID);
+    res.redirect(`/campgrounds/${campground._id}`);
+}))
+
 
 /***************************************************
     Generic Error handler   
@@ -116,7 +153,7 @@ app.use((err, req, res, next) => {
 })
 */
 
-app.all("*", (req,res, next) => {
+app.all("*", (req, res, next) => {
     //res.send("404");
     next(new ExpressError("Page not found", 404));
 })
@@ -125,14 +162,12 @@ app.all("*", (req,res, next) => {
     Route not found (middleware)    
 */
 app.use((err, req, res, next) => {
-    const {statusCode = 500, message} = err;
-    if(!err.message) err.message = "Oh, no!";
-    res.status(statusCode).render("errors", {err});
+    const { statusCode = 500, message } = err;
+    if (!err.message) err.message = "Oh, no!";
+    res.status(statusCode).render("errors", { err });
     //res.status(statusCode).send(message);
     //res.status(404).send("NOT FOUND!!!");
 })
-
-
 
 
 
