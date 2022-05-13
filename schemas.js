@@ -3,9 +3,9 @@ const { model } = require("mongoose");
 
 module.exports.campgroundSchema = Joi.object({
     campground: Joi.object({
-        title: Joi.string().required,
+        title: Joi.string().required(),
         price: Joi.string().required().min(0),
-        image: Joi.string().required(),
+        image: Joi.string(),
         location: Joi.string().required(),
         description: Joi.string().required(),
     }).required()
