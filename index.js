@@ -1,7 +1,10 @@
+// Include Dependencies Here
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
+const session = require("express-session");
+const flash = require("connect-flash");
 const ExpressError = require("./Utils/ExpressError.js");
 const methodOverride = require("method-override");
 const { findById } = require("./Models/campground");
@@ -32,8 +35,21 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "Views"));
 
 app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
+app.use(methodOverride("_method"));     // Used to override post requests with other request types
+app.use(express.static(path.join(__dirname, "Public")));    // Used so routers can obtain :id from the base URL
 
+// Setting up session
+const sessionConfig = {
+    secret: "ThisShouldBeABetterSecret",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 *7,
+        maxAge: 1000 * 60 * 60 * 24 *7,
+    }
+}
+app.use(session(sessionConfig));
 
 // Setting up Routers
 app.use("/campgrounds", campgrounds);
@@ -70,7 +86,6 @@ app.use((err, req, res, next) => {
     //res.status(statusCode).send(message);
     //res.status(404).send("NOT FOUND!!!");
 })
-
 
 
 const port = 5000
