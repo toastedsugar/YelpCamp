@@ -39,8 +39,13 @@ Router.get("/new", (req, res) => {
 Router.post("/", validateCampground, catchAsync(async (req, res, next) => {
     //res.send(req.body);
     //console.log(req.body.campground);
+
+    // Adding a photo since the campground doesnt have an image addition function yet
+    req.body.campground.image = "https://source.unsplash.com/random/400×300/?forest";
+    //console.log(req.body.campground);
     const newCampground = new Campground(req.body.campground);
     await newCampground.save();
+    req.flash("success", "Successfuly created your new Campground!");
     res.redirect(`/campgrounds/${newCampground._id}`);
 }))
 
@@ -66,6 +71,7 @@ Router.get("/:id/edit", catchAsync(async (req, res) => {
 Router.put("/:id", validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
     const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    req.flash("success", "Successfuly updated your new Campground!");
     res.redirect(`/campgrounds/${newCampground._id}`);
     //console.log(newCampground);
 }))
