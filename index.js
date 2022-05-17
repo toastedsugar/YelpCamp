@@ -8,10 +8,14 @@ const flash = require("connect-flash");
 const ExpressError = require("./Utils/ExpressError.js");
 const methodOverride = require("method-override");
 const { findById } = require("./Models/campground");
+const Users = require("./Models/users");
+const passport = require("passport");
+const localStragegy = require("passport-local");
 
 // Importing Routers
-const campgrounds = require("./Routes/campgrounds");
-const reviews = require("./Routes/reviews");
+const campgroundRoutes = require("./Routes/campgrounds");
+const reviewRoutes = require("./Routes/reviews");
+const userRoutes = require("./Routes/users");
 
 //Connect to database
 mongoose.connect("mongodb://localhost:27017/YelpCamp", {
@@ -49,18 +53,26 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60 * 24 *7,
     }
 }
+
 app.use(session(sessionConfig));
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStragegy(Users.authenticate()));
+passport.serializeUser(Users.serializeUser());
+passport.deserializeUser(Users.deserializeUser());
 
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
+    res.locals.currentUser = req.user;
     next();
 })
 
 // Setting up Routers
-app.use("/campgrounds", campgrounds);
-app.use("/campgrounds/:id/reviews", reviews);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/reviews", reviewRoutes);
+app.use("/", userRoutes);
 
 
 /***************************************************

@@ -1,7 +1,6 @@
 <% layout("Layouts/boilerplate") %>
-    <h1>
-        <%= campground.title %>
-    </h1>
+    <h1><%= campground.title %></h1>
+    <h4>Posted by: <%= campground.author.username %> </h4>
 
     <a class="btn btn-primary" href="/campgrounds">Back</a>
     <a class="btn btn-primary" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
