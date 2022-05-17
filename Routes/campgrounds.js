@@ -1,24 +1,9 @@
 const express = require("express");
 const Router = express.Router();
 const catchAsync = require("../Utils/catchAsync");
-const ExpressError = require("../Utils/ExpressError");
-
 const Campground = require("../Models/campground");
-const { campgroundSchema } = require("../schemas.js");
-const {isLoggedIn} = require("../Middleware");
-const campground = require("../Models/campground");
+const {isLoggedIn, isAuthor, validateCampground} = require("../Middleware");
 
-
-const validateCampground = (req, res, next) => {
-    const { error } = campgroundSchema.validate(req.body);
-
-    if (error) {
-        const msg = error.details.map(el => el.message).join(",");
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
 
 /***************************************************
     Creating index page 
@@ -66,14 +51,20 @@ Router.get("/:id", catchAsync(async (req, res) => {
     get request shows the input form
     post request updates campsite in database
 */
-Router.get("/:id/edit", isLoggedIn, catchAsync(async (req, res) => {
+Router.get("/:id/edit", isLoggedIn, isAuthor, catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
+    if(!campground){
+        req.flash("error", "Cannot find that campsite");
+        return res.redirect("/campgrounds");
+    }
     res.render(`campgrounds/edit`, { campground });
 }))
 
-Router.put("/:id", isLoggedIn, validateCampground, catchAsync(async (req, res) => {
+Router.put("/:id", isLoggedIn, isAuthor, validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
-    const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    //const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    const newCampground = await Campground.findById(id);
+    
     req.flash("success", "Successfuly updated your new Campground!");
     res.redirect(`/campgrounds/${newCampground._id}`);
     //console.log(newCampground);

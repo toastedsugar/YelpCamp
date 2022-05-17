@@ -11,6 +11,7 @@ const { findById } = require("./Models/campground");
 const Users = require("./Models/users");
 const passport = require("passport");
 const localStragegy = require("passport-local");
+const {isAuthor} = require("./Middleware");
 
 // Importing Routers
 const campgroundRoutes = require("./Routes/campgrounds");

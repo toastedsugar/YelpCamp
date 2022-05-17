@@ -1,23 +1,11 @@
 const express = require("express");
 const Router = express.Router({ mergeParams: true });
 const catchAsync = require("../Utils/catchAsync");
-const ExpressError = require("../Utils/ExpressError");
 
 const Campground = require("../Models/campground");
 const Review = require("../Models/review");
-const { reviewSchema } = require("../schemas.js");
+const {validateReview} = require("../Middleware")
 
-
-const validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body);
-
-    if (result.error) {
-        const msg = error.details.map(el => el.message).join(",");
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
 
 /***************************************************
     Add a review to a post */
