@@ -26,12 +26,16 @@
         <div class="mb-3">
             <p>Rating: <%= review.rating %></p>
             <p>Review: <%= review.body %></p>
+            <p>Author: <%= review.author.username %> </p>
+            <% if(currentUser && review.author.equals(currentUser._id)){ %> 
             <form action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>/?_method=DELETE" method="POST">
                 <button class="btn btn-sm btn-danger">Delete Comment</button>
             </form>
+            <% } %> 
         </div>
     <% } %>  
 
+    <% if(currentUser){ %> 
     <form class="validated-form" action="/campgrounds/<%= campground._id %>/reviews" method="POST" novalidate>
         <h2 class="mt-3">Leave a review</h2>
         <div class="mb-3">
@@ -44,4 +48,5 @@
         </div>
         <button class="btn btn-primary mb-3">Submit</button>
     </form>
+    <% } %> 
 

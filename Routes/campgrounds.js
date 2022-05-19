@@ -41,7 +41,12 @@ Router.post("/", isLoggedIn, validateCampground, catchAsync(async (req, res, nex
     View details for a single campsite */
 Router.get("/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
-    const campground = await Campground.findById(id).populate("reviews").populate("author");
+    const campground = await Campground.findById(id).populate({
+        path: "reviews",
+        populate: {
+            path: "author"
+        }
+    }).populate("author");
     //console.log(campground);
     res.render("campgrounds/view", { campground });
 }))
