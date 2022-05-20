@@ -4,12 +4,15 @@ const catchAsync = require("../Utils/catchAsync");
 const Campground = require("../Models/campground");
 const {isLoggedIn, isAuthor, validateCampground} = require("../Middleware");
 
+const multer = require("multer");
+const upload = multer({dest: "uploads/"});
+
 // Importing controllers
 const campgrounds = require("../Controllers/campgrounds");
 
 Router.route("/")
     .get(catchAsync(campgrounds.index))
-    .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createNewCampsite))
+    .post(isLoggedIn, validateCampground, upload.single("campground.image") , catchAsync(campgrounds.createNewCampsite))
 
 
 Router.get("/new", isLoggedIn, campgrounds.renderNewCampsiteForm)
