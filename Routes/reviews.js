@@ -15,7 +15,7 @@ Router.post("/", isLoggedIn, catchAsync(async (req, res) => {
     const campground = await Campground.findById(id);
     const newReview = new Review(req.body.review);
     newReview.author = req.user._id;
-    console.log(newReview);
+    console.log(req.body.review);
     campground.reviews.push(newReview);
     await newReview.save();
     await campground.save();
