@@ -11,9 +11,34 @@
         <button class="btn btn-danger my-1">Delete</button>
     </form>
     <% } %> 
+    
+    <!--
+    <% for(index of campground.images){ %> 
+    <img class="img-fluid" src="<%= index.url %>" alt="">
+    <% } %> 
+    -->
 
-    <img class="img-fluid" src="<%= campground.image %>" alt="">
+    <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            <% for(let index = 0; index < campground.images.length; index++){ %>
+            <div class="carousel-item <%= index === 0 ? "active" : "" %> ">
+                <img class="d-block w-100" src="<%= campground.images[index].url %>" alt="">
+            </div>
+            <% } %> 
+        </div>
+        <% if(campground.images.length > 1){ %> 
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only"></span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only"></span>
+        </a>
+        <% } %> 
+      </div>
 
+    
     <ul>
         <li>Location: <%= campground.location %>
         </li>

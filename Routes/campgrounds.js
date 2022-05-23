@@ -11,19 +11,20 @@ const upload = multer({storage});
 // Importing controllers
 const campgrounds = require("../Controllers/campgrounds");
 
+/*
 Router.route("/")
     .get(catchAsync(campgrounds.index))
     .post(upload.array("image"), (req, res) => {
         console.log(req.body, req.files);
         res.send("It worked");
     })
-
+*/
 
 
 
 Router.route("/")
     .get(catchAsync(campgrounds.index))
-    .post(isLoggedIn, validateCampground, upload.single("campground.image") , catchAsync(campgrounds.createNewCampsite))
+    .post(isLoggedIn, upload.array("image"), validateCampground, catchAsync(campgrounds.createNewCampground))
 
 
 Router.get("/new", isLoggedIn, campgrounds.renderNewCampsiteForm)

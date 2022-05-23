@@ -1,4 +1,5 @@
 
+const campground = require("../Models/campground");
 const Campground = require("../Models/campground");
 
 /***************************************************
@@ -19,16 +20,23 @@ module.exports.renderNewCampsiteForm = (req, res) => {
     //res.send("NEW")
 }
 
-module.exports.createNewCampsite = async (req, res, next) => {
+module.exports.createNewCampground = async (req, res, next) => {
     //res.send(req.body);
     //console.log(req.body.campground);
 
     // Adding a photo since the campground doesnt have an image addition function yet
     req.body.campground.image = "https://source.unsplash.com/random/400×300/?forest";
+    
     //console.log(req.body.campground);
     const newCampground = new Campground(req.body.campground);
     newCampground.author = req.user._id;
+
+    newCampground.images = req.files.map(f => ({url: f.path, filename: f.filename}));
+    
     await newCampground.save();
+
+    console.log(newCampground);
+
     req.flash("success", "Successfuly created your new Campground!");
     res.redirect(`/campgrounds/${newCampground._id}`);
 }
