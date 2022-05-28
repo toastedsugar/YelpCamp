@@ -31,7 +31,21 @@ const seedDB = async () => {
         const camp = new Campground({
             author: "6282dcad5a7ef71fd48ede5a",
             title: `${seedHelpers.descriptors[randomDescriptors]} ${seedHelpers.places[randomPlaces]}`,
-            image: "https://source.unsplash.com/random/400×300/?forest",
+            //image: "https://source.unsplash.com/random/400×300/?forest",
+            images: [
+                {
+                  url: 'https://res.cloudinary.com/do26dc7xg/image/upload/v1653198272/YelpCamp/hw9oluiy8okdbfgse7sb.jpg',
+                  filename: 'YelpCamp/hw9oluiy8okdbfgse7sb'
+                },
+                {
+                  url: 'https://res.cloudinary.com/do26dc7xg/image/upload/v1653198272/YelpCamp/vffeqfnbcrgm73yqyr1f.jpg',
+                  filename: 'YelpCamp/vffeqfnbcrgm73yqyr1f'
+                },
+                {
+                  url: 'https://res.cloudinary.com/do26dc7xg/image/upload/v1653198272/YelpCamp/mzhckqjwpxiyfay0ecxj.jpg',
+                  filename: 'YelpCamp/mzhckqjwpxiyfay0ecxj'
+                }
+              ],
             price: randomPrice,
             description: `${seedHelpers.descriptors[randomDescriptors]} ${seedHelpers.places[randomPlaces]}`,
             location: `${cities[random1000].city}, ${cities[random1000].state}`

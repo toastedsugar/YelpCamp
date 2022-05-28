@@ -51,7 +51,7 @@ module.exports.viewCampgroundDetails = async (req, res) => {
             path: "author"
         }
     }).populate("author");
-    //console.log(campground);
+    console.log(campground);
     res.render("campgrounds/view", { campground });
 }
 
