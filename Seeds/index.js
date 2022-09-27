@@ -27,11 +27,13 @@ const seedDB = async () => {
         const randomDescriptors = Math.floor(Math.random() * seedHelpers.descriptors.length);
         const randomPlaces = Math.floor(Math.random() * seedHelpers.places.length);
         const randomPrice = Math.floor(Math.random() * 400);
+        const randomImg = seedHelpers.img[ Math.floor(Math.random() * 3) ];
 
         const camp = new Campground({
             author: "6282dcad5a7ef71fd48ede5a",
             title: `${seedHelpers.descriptors[randomDescriptors]} ${seedHelpers.places[randomPlaces]}`,
             //image: "https://source.unsplash.com/random/400×300/?forest",
+            /*
             images: [
                 {
                   url: 'https://res.cloudinary.com/do26dc7xg/image/upload/v1654559076/YelpCamp/SEKI_130928-30_KW_IMG_9793_llno9j.jpg',
@@ -46,6 +48,8 @@ const seedDB = async () => {
                   filename: 'YelpCamp/mzhckqjwpxiyfay0ecxj'
                 }
               ],
+            */
+            images: [randomImg],
             price: randomPrice,
             description: `${seedHelpers.descriptors[randomDescriptors]} ${seedHelpers.places[randomPlaces]}`,
             location: `${cities[random1000].city}, ${cities[random1000].state}`

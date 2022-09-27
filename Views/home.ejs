@@ -1,12 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Yelpcamp</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;400&display=swap" rel="stylesheet"> 
+
+    <link rel="stylesheet" href="./Styles/Home.css">
 </head>
+
 <body>
-    <h1>HOME</h1>
+    <main>
+        <!-- Header here -->
+        <nav class='nav-container '>
+            <div class="logo">Yelpcamp</div>
+            <div class="nav-items">
+                <a href="/campgrounds" class="list-item">Campgrounds</a>
+                <% if(!currentUser){ %>
+                <a href="/login" class="list-item">Login</a>
+                <a href="/register" class="list-item">Register</a>
+                <% } else{ %>
+                <a href="/logout" class="list-item">Logout</a>
+                <% } %>
+            </div>
+
+        </nav>
+
+        <!-- Body here -->
+        <div class='splash-container'>
+            <div class = "splash-image">
+                <h4>Find your next camping adventure with us</h4>
+              </div>
+        </div>
+
+        <!-- Footer here -->
+        <nav class='footer-container'>
+            <div class="footer-text">This splash was created exclusively with CSS</div>
+        </nav>
+
+    </main>
 </body>
+
 </html>
