@@ -2,7 +2,6 @@ if(process.env.NODE_ENV != "production"){
     require("dotenv").config();
 }
 
-
 // Include Dependencies Here
 const express = require("express");
 const path = require("path");
@@ -17,14 +16,20 @@ const Users = require("./Models/users");
 const passport = require("passport");
 const localStragegy = require("passport-local");
 const {isAuthor} = require("./Middleware");
+const MongoStore = require('connect-mongo');
 
 // Importing Routers
 const campgroundRoutes = require("./Routes/campgrounds");
 const reviewRoutes = require("./Routes/reviews");
 const userRoutes = require("./Routes/users");
 
+//Set up Envirionment Variables
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/YelpCamp"
+const secret = process.env.SECRET || "ThisShouldBeABetterSecret"
+
 //Connect to database
-mongoose.connect("mongodb://localhost:27017/YelpCamp", {
+
+mongoose.connect(dbUrl, {
     useNewURLParser: true,
     //createUserIndex: true,        // Not supported in mongoose?
     useUnifiedTopology: true,
@@ -49,8 +54,15 @@ app.use(methodOverride("_method"));     // Used to override post requests with o
 app.use(express.static(path.join(__dirname, "Public")));    // Used so routers can obtain :id from the base URL
 
 // Setting up session
+const storeOptions = {
+    mongoUrl: dbUrl,
+    secret,
+    touchAfter: 24 * 3600,
+}
+
 const sessionConfig = {
-    secret: "ThisShouldBeABetterSecret",
+    secret,
+    store: MongoStore.create(storeOptions),
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -61,6 +73,7 @@ const sessionConfig = {
 }
 
 app.use(session(sessionConfig));
+
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
@@ -113,7 +126,7 @@ app.use((err, req, res, next) => {
 })
 
 
-const port = 5000
+const port = process.env.PORT || 5000
 app.listen(port, () => {
     console.log("Listening on port ", port);
 })
