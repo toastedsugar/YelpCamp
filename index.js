@@ -2,7 +2,6 @@ if(process.env.NODE_ENV != "production"){
     require("dotenv").config();
 }
 
-
 // Include Dependencies Here
 const express = require("express");
 const path = require("path");
@@ -10,12 +9,14 @@ const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
 const flash = require("connect-flash");
-const ExpressError = require("./Utils/ExpressError.js");
-const methodOverride = require("method-override");
-const { findById } = require("./Models/campground");
-const Users = require("./Models/users");
+const MongoStore = require('connect-mongo');
 const passport = require("passport");
 const localStragegy = require("passport-local");
+const methodOverride = require("method-override");
+
+const ExpressError = require("./Utils/ExpressError.js");
+const { findById } = require("./Models/campground");
+const Users = require("./Models/users");
 const {isAuthor} = require("./Middleware");
 
 // Importing Routers
@@ -23,8 +24,11 @@ const campgroundRoutes = require("./Routes/campgrounds");
 const reviewRoutes = require("./Routes/reviews");
 const userRoutes = require("./Routes/users");
 
+const secret =  process.env.SECRET || "ThisShouldBeABetterSecret"
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/YelpCamp"
+
 //Connect to database
-mongoose.connect("mongodb://localhost:27017/YelpCamp", {
+mongoose.connect(dbUrl, {
     useNewURLParser: true,
     //createUserIndex: true,        // Not supported in mongoose?
     useUnifiedTopology: true,
@@ -48,9 +52,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));     // Used to override post requests with other request types
 app.use(express.static(path.join(__dirname, "Public")));    // Used so routers can obtain :id from the base URL
 
+// Setting up session store
+const storeOptions = {
+    mongoUrl: dbUrl,
+    secret,
+    touchAfter: 24 * 60 * 60,
+}
+
 // Setting up session
 const sessionConfig = {
-    secret: "ThisShouldBeABetterSecret",
+    secret,
+    store: MongoStore.create(storeOptions),
     resave: false,
     saveUninitialized: true,
     cookie: {
