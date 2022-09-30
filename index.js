@@ -18,7 +18,6 @@ const ExpressError = require("./Utils/ExpressError.js");
 const { findById } = require("./Models/campground");
 const Users = require("./Models/users");
 const {isAuthor} = require("./Middleware");
-const MongoStore = require('connect-mongo');
 
 // Importing Routers
 const campgroundRoutes = require("./Routes/campgrounds");
@@ -58,13 +57,6 @@ const storeOptions = {
     mongoUrl: dbUrl,
     secret,
     touchAfter: 24 * 60 * 60,
-}
-
-// Setting up session
-const storeOptions = {
-    mongoUrl: dbUrl,
-    secret,
-    touchAfter: 24 * 3600,
 }
 
 const sessionConfig = {
